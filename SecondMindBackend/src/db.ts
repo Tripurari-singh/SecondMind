@@ -1,6 +1,6 @@
 import  mongoose , {model , Schema, Types} from "mongoose";
 
-mongoose.connect("");
+mongoose.connect("mongodb+srv://Tripurari:cCKXZK7PWcV95k6K@cluster0.c0dgn.mongodb.net/BrainApp");
 
 const ContentTypes = ["image", "video" , "article" , "audio"];
 
