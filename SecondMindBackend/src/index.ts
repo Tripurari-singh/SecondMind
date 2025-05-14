@@ -2,9 +2,10 @@ import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import * as bcrypt from "bcrypt";
-import { UserModel, ContentModel } from "./db";
+import { UserModel,LinkModel, ContentModel } from "./db";
 import { JWT_PASSWORD } from "./config";
 import { userMiddleware } from "./middleware";
+import { random } from "./util";
 
 const app = express();
 app.use(express.json());
@@ -194,6 +195,72 @@ app.use((err: Error, req: Request, res: Response, next: Function) => {
     });
 });
 
+app.post("/api/vi/brain/share" , userMiddleware ,  async function(req : Request , res : Response){
+    const share = req.body.share;
+    if(share){
+        const existingLink = await LinkModel.findOne({
+            userId : req.userId
+        })
+        if(existingLink){
+            res.json({
+                hash : existingLink.hash
+            })
+            return
+        }
+        const hash = random(10);
+         await LinkModel.create({
+            userId : req.userId,
+            hash : hash
+        });
+        res.json({
+            message : "/share/" + hash
+        })
+    }
+    else{
+         await LinkModel.deleteOne({
+            userId : req.userId
+        });
+        res.json({
+        Message : "Link Removed"
+    })
+    }
+})
+app.get("/api/vi/brain/:shareLink" , async function(req : Request , res : Response){
+    const hash = req.params.shareLink;
+
+    const link = await LinkModel.findOne({
+        hash
+    });
+
+    if(!link){
+        res.status(411).json({
+            message : "Sorry Incorrect Input"
+        })
+        return;
+    }
+
+    //userId
+    const content =  await ContentModel.findOne({
+        userId : link.userId
+    })
+
+    const user = await UserModel.findOne({
+        _id : link.userId
+    })
+
+    if(!user){
+        res.status(411).json({
+            message : "Something Crazzy Happened"
+        })
+        return;
+    }
+
+    res.json({
+        username : user.username,
+        content : content
+    })
+
+})
 app.listen(3000, () => {
     console.log("Listening on port 3000");
 });

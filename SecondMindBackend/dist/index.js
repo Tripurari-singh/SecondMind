@@ -54,7 +54,8 @@ const config_1 = require("./config");
 const middleware_1 = require("./middleware");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
-const signupHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+// Signup endpoint
+app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const signupSchema = zod_1.z.object({
             username: zod_1.z.string().min(3).max(10),
@@ -91,8 +92,9 @@ const signupHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             message: "Internal server error"
         });
     }
-});
-const signinHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+// Signin endpoint
+app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const signinSchema = zod_1.z.object({
             username: zod_1.z.string().min(3).max(10),
@@ -128,8 +130,9 @@ const signinHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             message: "Internal server error"
         });
     }
-});
-const createContentHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+// Create content endpoint
+app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const contentSchema = zod_1.z.object({
             link: zod_1.z.string().url(),
@@ -162,8 +165,9 @@ const createContentHandler = (req, res, next) => __awaiter(void 0, void 0, void 
             message: "Internal server error"
         });
     }
-});
-const getContentHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+// Get content endpoint
+app.get("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const content = yield db_1.ContentModel.find({
             userId: req.userId
@@ -175,8 +179,9 @@ const getContentHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             message: "Internal server error"
         });
     }
-});
-const deleteContentHandler = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+}));
+// Delete content endpoint
+app.delete("/api/v1/content/:contentId", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { contentId } = req.params;
         const result = yield db_1.ContentModel.findOneAndDelete({
@@ -198,17 +203,20 @@ const deleteContentHandler = (req, res, next) => __awaiter(void 0, void 0, void 
             message: "Internal server error"
         });
     }
+}));
+// Error handling middleware
+app.use((err, req, res, next) => {
+    if (err instanceof zod_1.z.ZodError) {
+        res.status(400).json({
+            message: "Invalid input data",
+            errors: err.errors
+        });
+        return;
+    }
+    res.status(500).json({
+        message: "Internal server error"
+    });
 });
-// Route handlers
-app.post("/api/v1/signup", signupHandler);
-app.post("/api/v1/signin", signinHandler);
-app.post("/api/v1/content", middleware_1.userMiddleware, createContentHandler);
-app.get("/api/v1/content", middleware_1.userMiddleware, getContentHandler);
-app.delete("/api/v1/content/:contentId", middleware_1.userMiddleware, deleteContentHandler);
-app.post("/api/v1/brain/share", function (req, res) {
-});
-app.get("/api/v1/brain/:shareLink", function (req, res) {
-});
-app.listen(3000, function () {
+app.listen(3000, () => {
     console.log("Listening on port 3000");
 });
