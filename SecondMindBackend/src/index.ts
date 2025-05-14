@@ -1,4 +1,4 @@
-import express, { Request, Response, RequestHandler } from "express";
+import express, { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { z } from "zod";
 import * as bcrypt from "bcrypt";
@@ -6,19 +6,11 @@ import { UserModel, ContentModel } from "./db";
 import { JWT_PASSWORD } from "./config";
 import { userMiddleware } from "./middleware";
 
-// Extend Express Request type to include userId
-declare global {
-    namespace Express {
-        interface Request {
-            userId: string;
-        }
-    }
-}
-
 const app = express();
 app.use(express.json());
 
-const signupHandler: RequestHandler = async (req, res, next) => {
+// Signup endpoint
+app.post("/api/v1/signup", async (req: Request, res: Response) => {
     try {
         const signupSchema = z.object({
             username: z.string().min(3).max(10),
@@ -59,9 +51,10 @@ const signupHandler: RequestHandler = async (req, res, next) => {
             message: "Internal server error"
         });
     }
-};
+});
 
-const signinHandler: RequestHandler = async (req, res, next) => {
+// Signin endpoint
+app.post("/api/v1/signin", async (req: Request, res: Response) => {
     try {
         const signinSchema = z.object({
             username: z.string().min(3).max(10),
@@ -105,9 +98,10 @@ const signinHandler: RequestHandler = async (req, res, next) => {
             message: "Internal server error"
         });
     }
-};
+});
 
-const createContentHandler: RequestHandler = async (req, res, next) => {
+// Create content endpoint
+app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
     try {
         const contentSchema = z.object({
             link: z.string().url(),
@@ -142,9 +136,10 @@ const createContentHandler: RequestHandler = async (req, res, next) => {
             message: "Internal server error"
         });
     }
-};
+});
 
-const getContentHandler: RequestHandler = async (req, res, next) => {
+// Get content endpoint
+app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
     try {
         const content = await ContentModel.find({
             userId: req.userId
@@ -156,9 +151,10 @@ const getContentHandler: RequestHandler = async (req, res, next) => {
             message: "Internal server error"
         });
     }
-};
+});
 
-const deleteContentHandler: RequestHandler = async (req, res, next) => {
+// Delete content endpoint
+app.delete("/api/v1/content/:contentId", userMiddleware, async (req: Request, res: Response) => {
     try {
         const { contentId } = req.params;
         
@@ -182,23 +178,22 @@ const deleteContentHandler: RequestHandler = async (req, res, next) => {
             message: "Internal server error"
         });
     }
-};
+});
 
-// Route handlers
-app.post("/api/v1/signup", signupHandler);
-app.post("/api/v1/signin", signinHandler);
-app.post("/api/v1/content", userMiddleware, createContentHandler);
-app.get("/api/v1/content", userMiddleware, getContentHandler);
-app.delete("/api/v1/content/:contentId", userMiddleware, deleteContentHandler);
+// Error handling middleware
+app.use((err: Error, req: Request, res: Response, next: Function) => {
+    if (err instanceof z.ZodError) {
+        res.status(400).json({
+            message: "Invalid input data",
+            errors: err.errors
+        });
+        return;
+    }
+    res.status(500).json({
+        message: "Internal server error"
+    });
+});
 
-app.post("/api/v1/brain/share",function(req,res){
-
-})
-
-app.get("/api/v1/brain/:shareLink",function(req,res){
-
-})
-
-app.listen(3000,function(){
+app.listen(3000, () => {
     console.log("Listening on port 3000");
 });

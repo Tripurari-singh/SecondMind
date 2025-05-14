@@ -1,23 +1,36 @@
+
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { JWT_PASSWORD } from "./config";
 
-export const userMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    const header = req.headers["authorization"];
-    const decoded = jwt.verify(header as string, JWT_PASSWORD)
-    if (decoded) {
-        if (typeof decoded === "string") {
-            res.status(403).json({
-                message: "You are not logged in"
-            })
-            return;    
+// Extend Express Request type to include userId
+declare global {
+    namespace Express {
+        interface Request {
+            userId: string;
         }
-        //@ts-ignore
-        req.userId = (decoded as JwtPayload).id;
-        next()
-    } else {
-        res.status(403).json({
-            message: "You are not logged in"
-        })
     }
 }
+
+export const userMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+    try {
+        const header = req.headers["authorization"];
+        
+        if (!header || !header.startsWith("Bearer ")) {
+            res.status(403).json({
+                message: "Authorization token missing or malformed"
+            });
+            return;
+        }
+
+        const token = header.split(" ")[1];
+        const decoded = jwt.verify(token, JWT_PASSWORD) as JwtPayload;
+        
+        req.userId = decoded.id;
+        next();
+    } catch (err) {
+        res.status(403).json({
+            message: "Invalid token"
+        });
+    }
+};
