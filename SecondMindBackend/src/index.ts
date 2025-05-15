@@ -195,6 +195,7 @@ app.use((err: Error, req: Request, res: Response, next: Function) => {
     });
 });
 
+// Returns a sharable Link
 app.post("/api/vi/brain/share" , userMiddleware ,  async function(req : Request , res : Response){
     const share = req.body.share;
     if(share){
@@ -225,6 +226,8 @@ app.post("/api/vi/brain/share" , userMiddleware ,  async function(req : Request 
     })
     }
 })
+
+// Makes that sharable Link Work
 app.get("/api/vi/brain/:shareLink" , async function(req : Request , res : Response){
     const hash = req.params.shareLink;
 
