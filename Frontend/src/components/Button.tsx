@@ -10,11 +10,13 @@ interface ButtonProps {
     "secondary" : "bg-purple-100 text-purple-600"
  }
 
- const defaultStyles = "px-4 py-2 rounded-lg font-light flex";
+ const defaultStyles = "px-4 py-2 rounded-lg font-light flex justify-center items-center";
 
 export function Button({varient , text , startIcon} : ButtonProps){
     return <button className={varientClasses[varient] + " "  + defaultStyles}>
-            {startIcon}
-            {text}
+            <div className="pr-2">
+                {startIcon}
+            </div>
+                {text}
     </button>
 }
