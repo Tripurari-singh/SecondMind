@@ -39,14 +39,6 @@
 
 ---
 
-## 📦 Getting Started Locally
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/your-username/second-mind.git
-cd second-mind
-
 ###  Auth Routes
 
 | Method | Endpoint        | Description            |
@@ -63,6 +55,30 @@ cd second-mind
 | GET    | /posts/:id       | Fetch a single post     |
 | DELETE | /posts/:id       | Delete a saved post     |
 | GET    | /share/:linkId   | View shared post by link|
+
+##  Getting Started Locally
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/your-username/second-mind.git
+cd second-mind
+```
+
+Want to contribute? Great! Follow these steps:
+
+# 1. Fork this repository
+# 2. Create a new branch for your feature
+git checkout -b feature/your-feature-name
+
+# 3. Make your changes and commit
+git commit -m "feat: Add your feature"
+
+# 4. Push to your fork
+git push origin feature/your-feature-name
+
+# 5. Submit a Pull Request 
+
 
 
 
