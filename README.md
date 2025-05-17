@@ -47,4 +47,22 @@
 git clone https://github.com/your-username/second-mind.git
 cd second-mind
 
+###  Auth Routes
+
+| Method | Endpoint        | Description            |
+|--------|-----------------|------------------------|
+| POST   | /auth/register  | Register a new user    |
+| POST   | /auth/login     | Login & get JWT token  |
+
+###  Post Routes
+
+| Method | Endpoint         | Description             |
+|--------|------------------|-------------------------|
+| GET    | /posts           | Fetch all saved posts   |
+| POST   | /posts           | Save a new post         |
+| GET    | /posts/:id       | Fetch a single post     |
+| DELETE | /posts/:id       | Delete a saved post     |
+| GET    | /share/:linkId   | View shared post by link|
+
+
 
