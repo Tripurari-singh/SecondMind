@@ -34,3 +34,52 @@ Second Mind is a modern MERN-stack (MongoDB, Express, React, Node.js) applicatio
 ```bash
 git clone https://github.com/Tripurari-singh/SecondMind.git
 cd SecondMind
+```
+2. Install dependencies for both frontend and backend:
+
+```bash
+# For backend
+cd backend
+npm install
+
+# For frontend
+cd ../frontend
+npm install
+```
+
+3. Set up environment variables:
+
+Create .env files in both backend and frontend directories (if applicable), e.g.:
+
+```bash
+# backend/.env
+MONGO_URI=your_mongo_connection_string
+JWT_SECRET=your_jwt_secret
+PORT=5000
+```
+
+```bash
+# frontend/.env
+REACT_APP_API_URL=http://localhost:5000/api
+
+```
+
+4. Run the backend and frontend servers:
+
+```bash
+# Backend
+cd backend
+npm run dev
+
+# Frontend
+cd ../frontend
+npm start
+
+```
+
+---
+
+
+
+
+
