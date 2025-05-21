@@ -5,29 +5,17 @@ Second Mind is a modern MERN-stack (MongoDB, Express, React, Node.js) applicatio
 ## Features
 
 - **Full MERN stack** with TypeScript for strong typing and better developer experience
-- 
 - **User Authentication & Authorization** using JWT for secure access
-- 
 - **CRUD Operations**: Create, Read, Update, and Delete memories easily
-- 
 - **Rich Memory Types**: Store URLs from YouTube, Twitter, LinkedIn, and tag them
-- 
 - **Responsive UI** built with React and Tailwind css
-- 
 - **State Management** with React hooks
-- 
 - **Backend API** built on Express.js with RESTful endpoints
-- 
 - **MongoDB** as the database for scalable and flexible data storage
-- 
 - **Error Handling** and validations for robust and secure application
-- 
 - **TypeScript** support throughout frontend and backend for maintainability
-- 
 - **Modular Code Structure** for easy scalability and maintainability
-- 
 - **Environment Variables** for secure management of sensitive information
-- 
 - **CORS** enabled to support frontend-backend communication
   
 
