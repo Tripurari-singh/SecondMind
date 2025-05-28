@@ -4,7 +4,7 @@ interface ButtonProps {
     onClick? : () => void,
     varient : "primary" | "secondary";
     text : string;
-    startIcon : ReactElement
+    startIcon? : ReactElement
 }
  const varientClasses = {
     "primary" : "bg-purple-600 text-white",

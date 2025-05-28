@@ -52,7 +52,13 @@ const bcrypt = __importStar(require("bcrypt"));
 const db_1 = require("./db");
 const config_1 = require("./config");
 const middleware_1 = require("./middleware");
+const util_1 = require("./util");
+const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
 app.use(express_1.default.json());
 // Signup endpoint
 app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -115,7 +121,7 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
             });
             return;
         }
-        const token = jsonwebtoken_1.default.sign({ id: user._id }, config_1.JWT_PASSWORD, { expiresIn: '24h' });
+        const token = jsonwebtoken_1.default.sign({ id: user._id }, config_1.JWT_PASSWORD);
         res.json({ token });
     }
     catch (error) {
@@ -135,18 +141,18 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
 app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const contentSchema = zod_1.z.object({
-            link: zod_1.z.string().url(),
+            link: zod_1.z.string(),
             type: zod_1.z.string(),
             title: zod_1.z.string(),
-            tags: zod_1.z.array(zod_1.z.string()).optional()
+            // tags: z.array(z.string()).optional()
         });
-        const { link, type, title, tags = [] } = contentSchema.parse(req.body);
+        const { link, type, title } = contentSchema.parse(req.body);
         const content = yield db_1.ContentModel.create({
-            link,
-            type,
-            title,
-            userId: req.userId,
-            tags
+            link: link,
+            title: req.body.title,
+            type: type,
+            userId: req.userId, // userId is added by the middleware.
+            tags: []
         });
         res.status(201).json({
             message: "Content added successfully",
@@ -168,17 +174,23 @@ app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter
 }));
 // Get content endpoint
 app.get("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const content = yield db_1.ContentModel.find({
-            userId: req.userId
-        }).select('-__v');
-        res.json({ content });
-    }
-    catch (error) {
-        res.status(500).json({
-            message: "Internal server error"
-        });
-    }
+    // try {
+    //     const content = await ContentModel.find({
+    //         userId: req.userId
+    //     }).select('-__v');
+    //     res.json({ content });
+    // } catch (error) {
+    //     res.status(500).json({
+    //         message: "Internal server error"
+    //     });
+    // }
+    const userId = req.userId;
+    const content = yield db_1.ContentModel.findOne({
+        userId: userId
+    }).populate("userId", "username");
+    res.json({
+        content
+    });
 }));
 // Delete content endpoint
 app.delete("/api/v1/content/:contentId", middleware_1.userMiddleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -215,6 +227,71 @@ app.use((err, req, res, next) => {
     }
     res.status(500).json({
         message: "Internal server error"
+    });
+});
+// Returns a sharable Link
+app.post("/api/v1/brain/share", middleware_1.userMiddleware, function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const share = req.body.share;
+        if (share) {
+            const existingLink = yield db_1.LinkModel.findOne({
+                userId: req.userId
+            });
+            if (existingLink) {
+                res.json({
+                    hash: existingLink.hash
+                });
+                return;
+            }
+            const hash = (0, util_1.random)(10);
+            yield db_1.LinkModel.create({
+                userId: req.userId,
+                hash: hash
+            });
+            res.json({
+                message: "/share/" + hash
+            });
+        }
+        else {
+            yield db_1.LinkModel.deleteOne({
+                userId: req.userId
+            });
+            res.json({
+                Message: "Link Removed"
+            });
+        }
+    });
+});
+// Makes that sharable Link Work
+app.get("/api/v1/brain/:shareLink", function (req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const hash = req.params.shareLink;
+        const link = yield db_1.LinkModel.findOne({
+            hash
+        });
+        if (!link) {
+            res.status(411).json({
+                message: "Sorry Incorrect Input"
+            });
+            return;
+        }
+        //userId
+        const content = yield db_1.ContentModel.findOne({
+            userId: link.userId
+        });
+        const user = yield db_1.UserModel.findOne({
+            _id: link.userId
+        });
+        if (!user) {
+            res.status(411).json({
+                message: "Something Crazzy Happened"
+            });
+            return;
+        }
+        res.json({
+            username: user.username,
+            content: content
+        });
     });
 });
 app.listen(3000, () => {

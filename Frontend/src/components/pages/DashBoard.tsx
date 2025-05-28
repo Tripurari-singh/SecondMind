@@ -5,10 +5,13 @@ import { SideBar } from "./sidebar";
 import { PlusIcon } from "../Icons/Plusicon";
 import { ShareIcon } from "../Icons/shareicon";
 import { Card } from "./card";
+import { UseContent } from "../Hooks/useContent";
 
 
  export function DashBoard() {
   const [modelOpen, setModelOpen] = useState(false);
+
+  const { contents} = UseContent();
 
   return (
     <div>
@@ -33,20 +36,10 @@ import { Card } from "./card";
             startIcon={<ShareIcon />} 
           />
         </div>
+        
 
-        {/* Cards */}
-        <div className="flex gap-4">
-          <Card
-            type="youtube"
-            link="https://youtu.be/dW9ljF7q6wo"
-            title="YouTube"
-          />
-          <Card
-            type="Linkdin"
-            link="https://www.linkedin.com/embed/feed/update/urn:li:ugcPost:123456789"
-            title="LinkedIn Post"
-          />
-        </div>
+
+
       </div>
     </div>
   );

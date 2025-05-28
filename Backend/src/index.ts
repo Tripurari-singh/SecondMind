@@ -6,8 +6,13 @@ import { UserModel,LinkModel, ContentModel } from "./db";
 import { JWT_PASSWORD } from "./config";
 import { userMiddleware } from "./middleware";
 import { random } from "./util";
+import cors from "cors";
 
 const app = express();
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
 
 // Signup endpoint
@@ -82,8 +87,7 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
 
         const token = jwt.sign(
             { id: user._id },
-            JWT_PASSWORD,
-            { expiresIn: '24h' }
+            JWT_PASSWORD
         );
 
         res.json({ token });
@@ -102,23 +106,23 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
 });
 
 // Create content endpoint
-app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
+app.post("/api/v1/content",userMiddleware, async (req: Request, res: Response) => {
     try {
         const contentSchema = z.object({
-            link: z.string().url(),
+            link: z.string(),
             type: z.string(),
             title: z.string(),
-            tags: z.array(z.string()).optional()
+            // tags: z.array(z.string()).optional()
         });
 
-        const { link, type, title, tags = [] } = contentSchema.parse(req.body);
+        const { link, type, title } = contentSchema.parse(req.body);
         
-        const content = await ContentModel.create({
-            link,
-            type,
-            title,
-            userId: req.userId,
-            tags
+         const content = await ContentModel.create({
+            link  : link,
+            title : req.body.title,
+            type  : type,
+            userId: req.userId, // userId is added by the middleware.
+            tags: []
         });
 
         res.status(201).json({
@@ -141,17 +145,25 @@ app.post("/api/v1/content", userMiddleware, async (req: Request, res: Response) 
 
 // Get content endpoint
 app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) => {
-    try {
-        const content = await ContentModel.find({
-            userId: req.userId
-        }).select('-__v');
+    // try {
+    //     const content = await ContentModel.find({
+    //         userId: req.userId
+    //     }).select('-__v');
 
-        res.json({ content });
-    } catch (error) {
-        res.status(500).json({
-            message: "Internal server error"
-        });
-    }
+    //     res.json({ content });
+    // } catch (error) {
+    //     res.status(500).json({
+    //         message: "Internal server error"
+    //     });
+    // }
+
+    const userId = req.userId;
+    const content = await ContentModel.findOne({
+        userId : userId
+    }).populate("userId" , "username")
+    res.json({
+        content
+    })
 });
 
 // Delete content endpoint
@@ -196,7 +208,7 @@ app.use((err: Error, req: Request, res: Response, next: Function) => {
 });
 
 // Returns a sharable Link
-app.post("/api/vi/brain/share" , userMiddleware ,  async function(req : Request , res : Response){
+app.post("/api/v1/brain/share" , userMiddleware ,  async function(req : Request , res : Response){
     const share = req.body.share;
     if(share){
         const existingLink = await LinkModel.findOne({
@@ -228,7 +240,7 @@ app.post("/api/vi/brain/share" , userMiddleware ,  async function(req : Request 
 })
 
 // Makes that sharable Link Work
-app.get("/api/vi/brain/:shareLink" , async function(req : Request , res : Response){
+app.get("/api/v1/brain/:shareLink" , async function(req : Request , res : Response){
     const hash = req.params.shareLink;
 
     const link = await LinkModel.findOne({

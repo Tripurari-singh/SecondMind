@@ -2,12 +2,14 @@ interface InputProps {
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder: string;
   value?: string;
+  reference? : any
 }
 
-export function Input({ onChange, placeholder, value }: InputProps) {
+export function Input({ onChange, placeholder, value ,  reference}: InputProps) {
   return (
     <div className="mb-6">
       <input
+        ref = {reference}
         type="text"
         placeholder={placeholder}
         value={value}
