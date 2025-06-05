@@ -167,9 +167,8 @@ app.post("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter
             });
             return;
         }
-        res.status(500).json({
-            message: "Internal server error"
-        });
+        console.error("Error while creating content:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 }));
 // Get content endpoint
@@ -185,7 +184,7 @@ app.get("/api/v1/content", middleware_1.userMiddleware, (req, res) => __awaiter(
     //     });
     // }
     const userId = req.userId;
-    const content = yield db_1.ContentModel.findOne({
+    const content = yield db_1.ContentModel.find({
         userId: userId
     }).populate("userId", "username");
     res.json({

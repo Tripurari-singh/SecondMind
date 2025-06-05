@@ -35,13 +35,11 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContentModel = exports.LinkModel = exports.UserModel = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-// mongoose.connect("mongodb+srv://Tripurari:cCKXZK7PWcV95k6K@cluster0.c0dgn.mongodb.net/BrainApp");
 mongoose_1.default.connect("mongodb+srv://Tripurari:cCKXZK7PWcV95k6K@cluster0.c0dgn.mongodb.net/BrainApp")
     .then(() => console.log(" MongoDB connected"))
     .catch(err => console.error(" MongoDB connection error:", err));
-const ContentTypes = ["image", "video", "article", "audio"];
 const UserSchema = new mongoose_1.Schema({
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: true },
     password: { type: String, required: true }
 });
 const ContentSchema = new mongoose_1.Schema({
@@ -49,11 +47,11 @@ const ContentSchema = new mongoose_1.Schema({
     title: { type: String, required: true },
     type: { type: String, required: true },
     tags: [{ type: mongoose_1.default.Types.ObjectId, ref: "tag" }],
-    userId: [{
-            type: mongoose_1.default.Types.ObjectId,
-            ref: "User",
-            required: true
-        }]
+    userId: {
+        type: mongoose_1.default.Types.ObjectId,
+        ref: "User",
+        required: true
+    }
 });
 const LinkSchema = new mongoose_1.Schema({
     hash: String,

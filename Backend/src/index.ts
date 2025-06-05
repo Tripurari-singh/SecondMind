@@ -137,9 +137,9 @@ app.post("/api/v1/content",userMiddleware, async (req: Request, res: Response) =
             });
             return;
         }
-        res.status(500).json({
-            message: "Internal server error"
-        });
+        console.error("Error while creating content:", error);
+        res.status(500).json({ message: "Internal server error" });
+
     }
 });
 
@@ -158,7 +158,7 @@ app.get("/api/v1/content", userMiddleware, async (req: Request, res: Response) =
     // }
 
     const userId = req.userId;
-    const content = await ContentModel.findOne({
+    const content = await ContentModel.find({
         userId : userId
     }).populate("userId" , "username")
     res.json({

@@ -36,6 +36,13 @@ import { UseContent } from "../Hooks/useContent";
             startIcon={<ShareIcon />} 
           />
         </div>
+        <div>
+          <Card
+        type="youtube"
+        title="Motivation Video"
+        link="https://youtu.be/2ONZxnKkPPE?si=QES0wq0DDGX4-9kp"
+        />
+        </div>
         
 
 
